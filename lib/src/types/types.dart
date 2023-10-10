@@ -9,3 +9,5 @@ export 'polygon.dart';
 export 'polygon_updates.dart';
 export 'camera.dart';
 export 'bitmap.dart';
+export 'amap_poi_keywords_search_request.dart';
+export 'amap_driving_route_search_request.dart';

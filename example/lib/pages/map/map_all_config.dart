@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:amap_flutter_base/amap_flutter_base.dart';
@@ -342,6 +343,14 @@ class _MapUiBodyState extends State<_MapUiBody> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          TextButton(
+            onPressed: onHandleRequestPOI,
+            child: Text("request poi"),
+          ),
+          TextButton(
+            onPressed: onHandleDrivingRoute,
+            child: Text("driving route"),
+          ),
           Container(
             height: MediaQuery.of(context).size.height * 0.6,
             width: MediaQuery.of(context).size.width,
@@ -357,6 +366,40 @@ class _MapUiBodyState extends State<_MapUiBody> {
         ],
       ),
     );
+  }
+
+  void onHandleRequestPOI() {
+    _controller
+        .requestPOIOptions(
+      AMapPOIKeywordsSearchRequest(
+        keywords: "北京大学",
+      ),
+    )
+        .then((value) {
+      log(value);
+    });
+  }
+
+  void onHandleDrivingRoute() {
+// 39.909187, 116.397451
+
+    _controller
+        .requestDrivingCalRouteOptions(
+      AMapDrivingRouteSearchRequest(
+        origin: AmapDrivingGeoPoint(
+          latitude: 39.909187,
+          longitude: 116.397451,
+        ),
+        destination: AmapDrivingGeoPoint(
+          latitude: 39.9,
+          longitude: 116.3,
+        ),
+        strategy: 5,
+      ),
+    )
+        .then((value) {
+      log(value);
+    });
   }
 
   void onMapCreated(AMapController controller) {

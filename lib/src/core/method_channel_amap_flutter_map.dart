@@ -79,6 +79,34 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
     );
   }
 
+  ///请求POI数据
+  ///TODO: 请求POI数据
+  Future<dynamic> requestPOIOptions(
+    Map<String, dynamic> newOptions, {
+    required int mapId,
+  }) {
+    return channel(mapId).invokeMethod<void>(
+      'map#requestPOI',
+      <String, dynamic>{
+        'options': newOptions,
+      },
+    );
+  }
+
+  ///驾车出行路线规划
+  ///TODO: 驾车出行路线规划
+  Future<dynamic> requestDrivingCalRouteOptions(
+    Map<String, dynamic> newOptions, {
+    required int mapId,
+  }) {
+    return channel(mapId).invokeMethod<void>(
+      'map#requestDrivingCalRoute',
+      <String, dynamic>{
+        'options': newOptions,
+      },
+    );
+  }
+
   @override
   void dispose({required int id}) {
     if (_channels.containsKey(id)) {
@@ -187,8 +215,8 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
         }
         break;
       case 'map#onTap':
-        _mapEventStreamController
-            .add(MapTapEvent(mapId, LatLng.fromJson(call.arguments['latLng'])!));
+        _mapEventStreamController.add(
+            MapTapEvent(mapId, LatLng.fromJson(call.arguments['latLng'])!));
         break;
       case 'map#onLongPress':
         _mapEventStreamController.add(MapLongPressEvent(
@@ -213,8 +241,8 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
         break;
       case 'map#onPoiTouched':
         try {
-          _mapEventStreamController.add(
-              MapPoiTouchEvent(mapId, AMapPoi.fromJson(call.arguments['poi'])!));
+          _mapEventStreamController.add(MapPoiTouchEvent(
+              mapId, AMapPoi.fromJson(call.arguments['poi'])!));
         } catch (e) {
           print('map#onPoiTouched error===>' + e.toString());
         }

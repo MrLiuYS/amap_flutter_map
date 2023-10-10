@@ -27,9 +27,17 @@
 #import "AMapConvertUtil.h"
 #import "FlutterMethodChannel+MethodCallDispatch.h"
 
-@interface AMapViewController ()<MAMapViewDelegate>
+#import <AMapSearchKit/AMapSearchKit.h>
+#import "MJExtension.h"
+#import "MANaviRoute.h"
+#import "CommonUtility.h"
+
+@interface AMapViewController ()<MAMapViewDelegate ,AMapSearchDelegate>
 
 @property (nonatomic,strong) MAMapView *mapView;
+@property (nonatomic,strong) AMapSearchAPI *search;// 地图内的搜索API类
+@property (strong, nonatomic) AMapRoute *route;  //路径规划信息
+@property (strong, nonatomic) MANaviRoute * naviRoute;  //用于显示当前路线方案.
 @property (nonatomic,strong) FlutterMethodChannel *channel;
 @property (nonatomic,assign) int64_t viewId;
 @property (nonatomic,strong) NSObject<FlutterPluginRegistrar>* registrar;
@@ -120,8 +128,16 @@
         }
         
         [self setMethodCallHandler];
+        
+        [self initSearch];
     }
     return self;
+}
+
+- (void)initSearch
+{
+    self.search = [[AMapSearchAPI alloc] init];
+    self.search.delegate = self;
 }
 
 - (UIView*)view {
@@ -234,6 +250,104 @@
         [weakSelf.mapView clearDisk];
         result(nil);
     }];
+    [self.channel addMethodName:@"map#requestPOI" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
+        [weakSelf requestPOIOptions:call.arguments[@"options"]];
+        weakSelf.waitForMapCallBack = result;
+    }];
+    [self.channel addMethodName:@"map#requestDrivingCalRoute" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
+        [weakSelf requestDrivingRouteOptions:call.arguments[@"options"]];
+        weakSelf.waitForMapCallBack = result;
+    }];
+}
+
+
+//MARK: 获取POI数据
+- (void)requestPOIOptions:(NSDictionary *)dict{
+    
+    AMapPOIKeywordsSearchRequest *request = [[AMapPOIKeywordsSearchRequest alloc] init];
+        
+    if (dict[@"keywords"]){
+        request.keywords = dict[@"keywords"];
+    }
+    if (dict[@"city"]){
+        request.city = dict[@"city"];
+    }
+    if (dict[@"types"]){
+        request.types = dict[@"types"];
+    }
+    if (dict[@"requireExtension"]){
+        request.requireExtension = dict[@"requireExtension"];
+    }
+    if (dict[@"cityLimit"]){
+        request.cityLimit = dict[@"cityLimit"];
+    }
+    if (dict[@"requireSubPOIs"]){
+        request.requireSubPOIs = dict[@"requireSubPOIs"];
+    }
+    
+    [self.search AMapPOIKeywordsSearch:request];
+    
+}
+
+- (void)requestDrivingRouteOptions:(NSDictionary *)dict{
+    
+    AMapDrivingRouteSearchRequest *request = [[AMapDrivingRouteSearchRequest alloc] init];
+    
+    if (dict[@"origin"]){
+        request.origin = [AMapGeoPoint locationWithLatitude:[dict[@"origin"][@"latitude"] doubleValue]
+                                                  longitude:[dict[@"origin"][@"longitude"] doubleValue]];
+    }
+    if (dict[@"destination"]){
+        request.destination = [AMapGeoPoint locationWithLatitude:[dict[@"destination"][@"latitude"] doubleValue]
+                                                  longitude:[dict[@"destination"][@"longitude"] doubleValue]];
+    }
+    
+    request.requireExtension = YES;
+    if (dict[@"strategy"]){
+        request.strategy = [dict[@"strategy"] intValue];
+    }
+    if (dict[@"waypoints"]){
+        NSMutableArray * waypoints = [NSMutableArray array];
+        for (NSDictionary * webpoint in dict[@"waypoints"]) {
+            [waypoints addObject:[AMapGeoPoint locationWithLatitude:[webpoint[@"latitude"] doubleValue]
+                                                          longitude:[webpoint[@"longitude"] doubleValue]]];
+        }
+        request.waypoints = waypoints;
+    }
+    if (dict[@"avoidpolygons"]){
+        NSMutableArray * avoidpolygons = [NSMutableArray array];
+        for (NSDictionary * avoidpolygon in dict[@"avoidpolygons"]) {
+            [avoidpolygons addObject:[AMapGeoPoint locationWithLatitude:[avoidpolygon[@"latitude"] doubleValue]
+                                                              longitude:[avoidpolygon[@"longitude"] doubleValue]]];
+        }
+        request.avoidpolygons = avoidpolygons;
+    }
+    if (dict[@"avoidroad"]){
+        request.avoidroad = dict[@"avoidroad"];
+    }
+    if (dict[@"originId"]){
+        request.originId = dict[@"originId"];
+    }
+    if (dict[@"destinationId"]){
+        request.destinationId = dict[@"destinationId"];
+    }
+    if (dict[@"origintype"]){
+        request.origintype = dict[@"origintype"];
+    }
+    if (dict[@"destinationtype"]){
+        request.destinationtype = dict[@"destinationtype"];
+    }
+    if (dict[@"plateProvince"]){
+        request.plateProvince = dict[@"plateProvince"];
+    }
+    if (dict[@"plateNumber"]){
+        request.plateNumber = dict[@"plateNumber"];
+    }
+    if (dict[@"ferry"]){
+        request.ferry = [dict[@"ferry"] intValue];
+    }
+    
+    [self.search AMapDrivingRouteSearch:request];
 }
 
 //MARK: MAMapViewDelegate
@@ -406,10 +520,58 @@
  * @return 生成的覆盖物Renderer
  */
 - (MAOverlayRenderer *)mapView:(MAMapView *)mapView rendererForOverlay:(id <MAOverlay>)overlay {
+    
+//    //虚线，如需要步行的
+//    if ([overlay isKindOfClass:[LineDashPolyline class]]) {
+//        MAPolylineRenderer *polylineRenderer = [[MAPolylineRenderer alloc] initWithPolyline:((LineDashPolyline *)overlay).polyline];
+//        polylineRenderer.lineWidth = 6;
+////        polylineRenderer.lineDash = YES;
+//        polylineRenderer.strokeColor = [UIColor redColor];
+//
+//        return polylineRenderer;
+//    }
+//
+//    //showTraffic为NO时，不需要带实时路况，路径为单一颜色，比如驾车线路目前为blueColor
+//    else  if ([overlay isKindOfClass:[MANaviPolyline class]]) {
+//        MANaviPolyline *naviPolyline = (MANaviPolyline *)overlay;
+//        MAPolylineRenderer *polylineRenderer = [[MAPolylineRenderer alloc] initWithPolyline:naviPolyline.polyline];
+//
+//        polylineRenderer.lineWidth = 6;
+//
+//        if (naviPolyline.type == MANaviAnnotationTypeWalking) {
+//            polylineRenderer.strokeColor = self.naviRoute.walkingColor;
+//        } else if (naviPolyline.type == MANaviAnnotationTypeRailway) {
+//            polylineRenderer.strokeColor = self.naviRoute.railwayColor;
+//        } else {
+//            polylineRenderer.strokeColor = self.naviRoute.routeColor;
+//        }
+//
+//        return polylineRenderer;
+//    }
+//
+//    //showTraffic为YES时，需要带实时路况，路径为多颜色渐变
+//    else  if ([overlay isKindOfClass:[MAMultiPolyline class]]) {
+//        MAMultiColoredPolylineRenderer * polylineRenderer = [[MAMultiColoredPolylineRenderer alloc] initWithMultiPolyline:overlay];
+//
+//        polylineRenderer.lineWidth = 6;
+//        polylineRenderer.strokeColors = [self.naviRoute.multiPolylineColors copy];
+//
+//        return polylineRenderer;
+//    }
+//
+//    else
+        
     if ([overlay isKindOfClass:[MAPolyline class]]) {
         MAPolyline *polyline = overlay;
         if (polyline.polylineId == nil) {
-            return nil;
+            MAPolylineRenderer *polygonView = [[MAPolylineRenderer alloc] initWithPolyline:overlay];
+            //设置线宽颜色等
+            polygonView.lineWidth = 8.f;
+            polygonView.strokeColor = [UIColor colorWithRed:0.015 green:0.658 blue:0.986 alpha:1.000];
+            polygonView.fillColor = [UIColor colorWithRed:0.940 green:0.771 blue:0.143 alpha:0.800];
+            polygonView.lineJoinType = kMALineJoinRound;//连接类型
+            //返回view，就进行了添加
+            return polygonView;
         }
         AMapPolyline *fPolyline = [_polylinesController polylineForId:polyline.polylineId];
         MAPolylineRenderer *polylineRenderer = [[MAPolylineRenderer alloc] initWithPolyline:overlay];
@@ -496,4 +658,164 @@
     }
 }
 
+
+//MARK: AMapSearchDelegate
+
+//MARK: POI数据
+
+- (void)onPOISearchDone:(AMapPOISearchBaseRequest *)request response:(AMapPOISearchResponse *)response {
+    
+    if (self.waitForMapCallBack) {
+        self.waitForMapCallBack(response.mj_JSONString);
+        self.waitForMapCallBack = nil;
+    }
+    
+}
+
+//MARK: 路线规划
+
+- (void)onRouteSearchDone:(AMapRouteSearchBaseRequest *)request response:(AMapRouteSearchResponse *)response {
+    
+    if (self.waitForMapCallBack) {
+        self.waitForMapCallBack(response.mj_JSONString);
+        self.waitForMapCallBack = nil;
+    }
+    
+    if(response.route == nil)
+     {
+         return;
+     }
+     
+    
+    AMapPath *path = response.route.paths[0]; //选择一条路径
+    AMapStep *step = path.steps[0]; //这个路径上的导航路段数组
+    NSLog(@"%@",step.polyline);   //此路段坐标点字符串
+    
+    
+    MAPolyline *_polyline;
+    
+    if (response.count > 0)
+    {
+        //      //直接取第一个方案
+        AMapPath *path = response.route.paths[0];
+        //移除旧折线对象
+        [_mapView removeOverlay:_polyline];
+        //构造折线对象
+        _polyline = [self polylinesForPath:path];
+        //添加新的遮盖，然后会触发代理方法(- (MAOverlayRenderer *)mapView:(MAMapView *)mapView rendererForOverlay:(id<MAOverlay>)overlay)进行绘制
+        [_mapView addOverlay:_polyline];
+    }
+    
+    
+//    [self presentCurrentRouteCourseResponse:response];
+    
+    
+}
+
+//路线解析
+- (MAPolyline *)polylinesForPath:(AMapPath *)path{
+    if (path == nil || path.steps.count == 0){
+        return nil;
+    }
+    NSMutableString *polylineMutableString = [@"" mutableCopy];
+    for (AMapStep *step in path.steps) {
+        [polylineMutableString appendFormat:@"%@;",step.polyline];
+    }
+    
+    NSUInteger count = 0;
+    
+    
+    CLLocationCoordinate2D *coordinates = [self coordinatesForString:polylineMutableString
+                                                     coordinateCount:&count
+                                                          parseToken:@";"];
+    
+    MAPolyline *polyline = [MAPolyline polylineWithCoordinates:coordinates count:count];
+    
+    (void)(free(coordinates)),coordinates = NULL;
+    return polyline;
+}
+
+//解析经纬度
+- (CLLocationCoordinate2D *)coordinatesForString:(NSString *)string
+                                 coordinateCount:(NSUInteger *)coordinateCount
+                                      parseToken:(NSString *)token{
+    if (string == nil){
+        return NULL;
+    }
+    
+    if (token == nil){
+        token = @",";
+    }
+    
+    NSString *str = @"";
+    if (![token isEqualToString:@","]){
+        str = [string stringByReplacingOccurrencesOfString:token withString:@","];
+    }else{
+        str = [NSString stringWithString:string];
+    }
+    
+    NSArray *components = [str componentsSeparatedByString:@","];
+    NSUInteger count = [components count] / 2;
+    if (coordinateCount != NULL){
+        *coordinateCount = count;
+    }
+    CLLocationCoordinate2D *coordinates = (CLLocationCoordinate2D*)malloc(count * sizeof(CLLocationCoordinate2D));
+    
+    for (int i = 0; i < count; i++){
+        coordinates[i].longitude = [[components objectAtIndex:2 * i]     doubleValue];
+        coordinates[i].latitude  = [[components objectAtIndex:2 * i + 1] doubleValue];
+    }
+    return coordinates;
+}
+
+//
+////在地图上显示当前选择的路径
+//- (void)presentCurrentRouteCourseResponse:(AMapRouteSearchResponse *)response {
+//
+//
+//    if(response.count <= 0){
+//        return;
+//    }
+//
+//
+//    [self.naviRoute removeFromMapView];  //清空地图上已有的路线
+//
+////    self.infoLabel.text = [NSString stringWithFormat:@"共%u条路线，当前显示第%u条",(unsigned)self.totalRouteNums,(unsigned)self.currentRouteIndex + 1];  //提示信息
+//
+//    MANaviAnnotationType type = MANaviAnnotationTypeDrive; //驾车类型
+//
+////    AMapGeoPoint *startPoint = [AMapGeoPoint locationWithLatitude:self.startAnnotation.coordinate.latitude longitude:self.startAnnotation.coordinate.longitude]; //起点
+////
+////    AMapGeoPoint *endPoint = [AMapGeoPoint locationWithLatitude:self.destinationAnnotation.coordinate.latitude longitude:self.destinationAnnotation.coordinate.longitude];  //终点
+//
+//    //根据已经规划的路径，起点，终点，规划类型，是否显示实时路况，生成显示方案
+//    self.naviRoute = [MANaviRoute naviRouteForPath:response.route.paths[0]
+//                                      withNaviType:type
+//                                       showTraffic:YES
+//                                        startPoint:response.route.origin
+//                                          endPoint:response.route.destination];
+//
+//    [self.naviRoute addToMapView:self.mapView];  //显示到地图上
+//
+//    UIEdgeInsets edgePaddingRect = UIEdgeInsetsMake(20, 20, 20, 20);
+//
+//    //缩放地图使其适应polylines的展示
+//    [self.mapView setVisibleMapRect:[CommonUtility mapRectForOverlays:self.naviRoute.routePolylines]
+//                        edgePadding:edgePaddingRect
+//                           animated:NO];
+//}
+
+
+
+
+- (void)AMapSearchRequest:(id)request didFailWithError:(NSError *)error {
+    
+    NSLog(@"%@",error);
+    if (self.waitForMapCallBack) {
+        self.waitForMapCallBack(error.description);
+        self.waitForMapCallBack = nil;
+    }
+}
+
 @end
+
