@@ -25,9 +25,9 @@ class AMapDrivingRouteSearchResponse {
 
 class AMapDrivingRoute {
   List<AMapDrivingPath>? paths;
-  AmapDrivingGeoPoint? destination;
+  AmapPoint? destination;
   num? taxiCost;
-  AmapDrivingGeoPoint? origin;
+  AmapPoint? origin;
 
   AMapDrivingRoute({this.paths, this.destination, this.taxiCost, this.origin});
 
@@ -39,12 +39,11 @@ class AMapDrivingRoute {
       });
     }
     destination = json['destination'] != null
-        ? new AmapDrivingGeoPoint.fromJson(json['destination'])
+        ? new AmapPoint.fromJson(json['destination'])
         : null;
     taxiCost = json['taxiCost'];
-    origin = json['origin'] != null
-        ? new AmapDrivingGeoPoint.fromJson(json['origin'])
-        : null;
+    origin =
+        json['origin'] != null ? new AmapPoint.fromJson(json['origin']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -122,7 +121,7 @@ class AMapDrivingPath {
 class AMapDrivingStep {
   String? orientation;
   String? assistantAction;
-  List<AMapDrivingCitie>? cities;
+  List<AMapDrivingCity>? cities;
   num? tollDistance;
   String? tollRoad;
   String? road;
@@ -155,9 +154,9 @@ class AMapDrivingStep {
     orientation = json['orientation'];
     assistantAction = json['assistantAction'];
     if (json['cities'] != null) {
-      cities = <AMapDrivingCitie>[];
+      cities = <AMapDrivingCity>[];
       json['cities'].forEach((v) {
-        cities!.add(new AMapDrivingCitie.fromJson(v));
+        cities!.add(new AMapDrivingCity.fromJson(v));
       });
     }
     tollDistance = json['tollDistance'];
@@ -202,17 +201,17 @@ class AMapDrivingStep {
   }
 }
 
-class AMapDrivingCitie {
+class AMapDrivingCity {
   String? citycode;
   num? aNum;
   List<AMapDrivingDistrict>? districts;
   String? city;
   String? adcode;
 
-  AMapDrivingCitie(
+  AMapDrivingCity(
       {this.citycode, this.aNum, this.districts, this.city, this.adcode});
 
-  AMapDrivingCitie.fromJson(Map<String, dynamic> json) {
+  AMapDrivingCity.fromJson(Map<String, dynamic> json) {
     citycode = json['citycode'];
     aNum = json['num'];
     if (json['districts'] != null) {

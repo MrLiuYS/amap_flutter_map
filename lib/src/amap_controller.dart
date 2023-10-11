@@ -100,8 +100,13 @@ class AMapController {
     return _methodChannel.updatePolygons(polygonUpdates, mapId: mapId);
   }
 
-  Future<dynamic> requestPOIOptions(AMapPOIKeywordsSearchRequest poiOptions) {
-    return _methodChannel.requestPOIOptions(poiOptions.toJson(), mapId: mapId);
+  Future<AMapPOIKeywordsSearchResponse> requestPOIOptions(
+      AMapPOIKeywordsSearchRequest poiOptions) async {
+    var result = await _methodChannel.requestPOIOptions(
+      poiOptions.toJson(),
+      mapId: mapId,
+    );
+    return AMapPOIKeywordsSearchResponse.fromJson(json.decode(result));
   }
 
   Future<AMapDrivingRouteSearchResponse> requestDrivingCalRouteOptions(

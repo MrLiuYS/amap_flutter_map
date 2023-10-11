@@ -34,8 +34,6 @@
 
 @property (nonatomic,strong) MAMapView *mapView;
 @property (nonatomic,strong) AMapSearchAPI *search;// 地图内的搜索API类
-@property (strong, nonatomic) AMapRoute *route;  //路径规划信息
-@property (strong, nonatomic) MANaviRoute * naviRoute;  //用于显示当前路线方案.
 @property (nonatomic,strong) FlutterMethodChannel *channel;
 @property (nonatomic,assign) int64_t viewId;
 @property (nonatomic,strong) NSObject<FlutterPluginRegistrar>* registrar;
@@ -270,14 +268,30 @@
     if (dict[@"city"]){
         request.city = dict[@"city"];
     }
+    if (dict[@"cityLimit"]){
+        request.cityLimit = dict[@"cityLimit"];
+    }
+    if (dict[@"location"]){
+        request.location = [AMapGeoPoint locationWithLatitude:[dict[@"location"][@"latitude"] doubleValue]
+                                                  longitude:[dict[@"location"][@"longitude"] doubleValue]];
+    }
     if (dict[@"types"]){
         request.types = dict[@"types"];
     }
+    if (dict[@"sortrule"]){
+        request.sortrule = [dict[@"sortrule"] intValue];
+    }
+    if (dict[@"offset"]){
+        request.offset = [dict[@"offset"] intValue];
+    }
+    if (dict[@"page"]){
+        request.page = [dict[@"page"] intValue];
+    }
+    if (dict[@"building"]){
+        request.building = dict[@"building"];
+    }
     if (dict[@"requireExtension"]){
         request.requireExtension = dict[@"requireExtension"];
-    }
-    if (dict[@"cityLimit"]){
-        request.cityLimit = dict[@"cityLimit"];
     }
     if (dict[@"requireSubPOIs"]){
         request.requireSubPOIs = dict[@"requireSubPOIs"];

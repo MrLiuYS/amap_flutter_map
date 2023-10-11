@@ -35,7 +35,13 @@ class _State extends State<_Body> {
   BitmapDescriptor? _markerIcon;
   String? selectedMarkerId;
 
-  void _onMapCreated(AMapController controller) {}
+  late AMapController _controller;
+
+  void _onMapCreated(AMapController controller) {
+    setState(() {
+      _controller = controller;
+    });
+  }
 
   ///通过BitmapDescriptor.fromAssetImage的方式获取图片
   Future<void> _createMarkerImageFromAsset(BuildContext context) async {
@@ -73,10 +79,57 @@ class _State extends State<_Body> {
   }
 
   void _add() {
+    LatLng point1 = LatLng(-40, -140.0);
+    LatLng point2 = LatLng(40, 140);
+
+    LatLngBounds bound = LatLngBounds(southwest: point1, northeast: point2);
+
+    _controller.moveCamera(CameraUpdate.newLatLngBounds(bound, 50));
+
+    // final int markerCount = _markers.length;
+    // LatLng markPostion;
+    // if (markerCount == 0) {
+    //   markPostion = LatLng(-10, 0.0);
+    // } else if (markerCount == 1) {
+    //   markPostion = LatLng(45, 117);
+    // } else {
+    //   markPostion = LatLng(
+    //       mapCenter.latitude + sin(markerCount * pi / 12.0) / 20.0,
+    //       mapCenter.longitude + cos(markerCount * pi / 12.0) / 20.0);
+    // }
+
+    final Marker marker1 = Marker(
+      position: point1,
+      icon: _markerIcon!,
+      infoWindow: InfoWindow(title: '第 1 个Marker'),
+      onTap: (markerId) => _onMarkerTapped(markerId),
+      onDragEnd: (markerId, endPosition) =>
+          _onMarkerDragEnd(markerId, endPosition),
+    );
+
+    final Marker marker2 = Marker(
+      position: point2,
+      icon: _markerIcon!,
+      infoWindow: InfoWindow(title: '第 2 个Marker'),
+      onTap: (markerId) => _onMarkerTapped(markerId),
+      onDragEnd: (markerId, endPosition) =>
+          _onMarkerDragEnd(markerId, endPosition),
+    );
+
+    setState(() {
+      _markers[marker1.id] = marker1;
+      _markers[marker2.id] = marker2;
+    });
+  }
+
+  void _add111() {
     final int markerCount = _markers.length;
-    LatLng markPostion = LatLng(
+    LatLng markPostion;
+
+    markPostion = LatLng(
         mapCenter.latitude + sin(markerCount * pi / 12.0) / 20.0,
         mapCenter.longitude + cos(markerCount * pi / 12.0) / 20.0);
+
     final Marker marker = Marker(
       position: markPostion,
       icon: _markerIcon!,
@@ -130,13 +183,12 @@ class _State extends State<_Body> {
   void _changeInfo() async {
     final Marker marker = _markers[selectedMarkerId]!;
     final String newTitle = marker.infoWindow.title! + '*';
-    if(selectedMarkerId != null) {
+    if (selectedMarkerId != null) {
       setState(() {
         _markers[selectedMarkerId!] = marker.copyWith(
           infoWindowParam: marker.infoWindow.copyWith(
             titleParam: newTitle,
           ),
-
         );
       });
     }

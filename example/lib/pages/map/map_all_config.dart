@@ -1,4 +1,6 @@
-import 'dart:developer';
+import 'dart:convert';
+import 'dart:developer' as developer;
+
 import 'dart:typed_data';
 
 import 'package:amap_flutter_base/amap_flutter_base.dart';
@@ -377,10 +379,13 @@ class _MapUiBodyState extends State<_MapUiBody> {
         .requestPOIOptions(
       AMapPOIKeywordsSearchRequest(
         keywords: "北京大学",
+        city: "北京",
+        requireExtension: true,
+        requireSubPOIs: true,
       ),
     )
         .then((value) {
-      log(value);
+      developer.log(value.toString());
     });
   }
 
@@ -388,29 +393,28 @@ class _MapUiBodyState extends State<_MapUiBody> {
 // 39.909187, 116.397451
 
     _controller
-        .requestDrivingCalRouteOptions(
-      AMapDrivingRouteSearchRequest(
-        origin: AmapDrivingGeoPoint(
-          latitude: 39.909187,
-          longitude: 116.397451,
-        ),
-        destination: AmapDrivingGeoPoint(
-          latitude: 39.9,
-          longitude: 116.3,
-        ),
-        strategy: 5,
+        .requestDrivingCalRouteOptions(AMapDrivingRouteSearchRequest(
+      origin: AmapPoint(
+        latitude: 39.909187,
+        longitude: 116.397451,
       ),
-    )
+      destination: AmapPoint(
+        latitude: 39,
+        longitude: 116,
+      ),
+      strategy: 5,
+    ))
         .then((AMapDrivingRouteSearchResponse response) {
-      log(response.toString());
+      developer.log(jsonEncode(response.toJson()));
 
       if (response.count != null && response.count! > 0) {
+        // targetBounds = null;
         _polylines.clear();
 
         for (AMapDrivingPath path in response.route?.paths ?? []) {
           final Polyline polyline = Polyline(
             color: Colors.black,
-            width: 5,
+            width: 5, //20,
             // customTexture:
             //     BitmapDescriptor.fromIconPath('assets/texture_green.png'),
             joinType: JoinType.round,
@@ -421,6 +425,13 @@ class _MapUiBodyState extends State<_MapUiBody> {
         }
 
         setState(() {});
+
+        var bound =
+            AmapFlutterBaseUtil.adjustBoundFromPaths(response.route?.paths);
+        if (bound != null) {
+          CameraUpdate update = CameraUpdate.newLatLngBounds(bound, 50);
+          _controller.moveCamera(update);
+        }
       }
     });
   }
@@ -434,7 +445,10 @@ class _MapUiBodyState extends State<_MapUiBody> {
       List<String> pStep = stepPolyline.split(",");
 
       if (pStep.length == 2) {
-        points.add(LatLng(double.parse(pStep.last), double.parse(pStep.first)));
+        var latlng =
+            LatLng(double.parse(pStep.last), double.parse(pStep.first));
+
+        points.add(latlng);
       }
     }
 

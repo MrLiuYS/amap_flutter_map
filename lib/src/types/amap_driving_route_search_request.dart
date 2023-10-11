@@ -1,12 +1,11 @@
-import 'amap_flutter_base_util.dart';
 import 'types.dart';
 
 class AMapDrivingRouteSearchRequest {
   ///出发点
-  AmapDrivingGeoPoint? origin;
+  AmapPoint? origin;
 
   ///目的地
-  AmapDrivingGeoPoint? destination;
+  AmapPoint? destination;
 
   ///  驾车导航策略，默认策略为0。
   /// 0，速度优先（时间)；1，费用优先（不走收费路段的最快道路）；2，距离优先；3，不走快速路；4，躲避拥堵；
@@ -26,10 +25,10 @@ class AMapDrivingRouteSearchRequest {
   int? strategy;
 
   ///途经点 AMapGeoPoint 数组，最多支持16个途经点
-  List<AmapDrivingGeoPoint>? waypoints;
+  List<AmapPoint>? waypoints;
 
   ///避让区域 AMapGeoPolygon 数组，最多支持100个避让区域，每个区域16个点
-  List<AmapDrivingGeoPoint>? avoidpolygons;
+  List<AmapPoint>? avoidpolygons;
 
   ///避让道路名
   String? avoidroad;
@@ -75,24 +74,22 @@ class AMapDrivingRouteSearchRequest {
       this.ferry});
 
   AMapDrivingRouteSearchRequest.fromJson(Map<String, dynamic> json) {
-    origin = json['origin'] != null
-        ? AmapDrivingGeoPoint.fromJson(json['origin'])
-        : null;
+    origin = json['origin'] != null ? AmapPoint.fromJson(json['origin']) : null;
     destination = json['destination'] != null
-        ? AmapDrivingGeoPoint.fromJson(json['destination'])
+        ? AmapPoint.fromJson(json['destination'])
         : null;
     strategy = json['strategy'];
     if (json['waypoints'] != null) {
-      waypoints = <AmapDrivingGeoPoint>[];
+      waypoints = <AmapPoint>[];
       json['waypoints'].forEach((v) {
-        waypoints!.add(AmapDrivingGeoPoint.fromJson(v));
+        waypoints!.add(AmapPoint.fromJson(v));
       });
     }
 
     if (json['avoidpolygons'] != null) {
-      avoidpolygons = <AmapDrivingGeoPoint>[];
+      avoidpolygons = <AmapPoint>[];
       json['avoidpolygons'].forEach((v) {
-        avoidpolygons!.add(AmapDrivingGeoPoint.fromJson(v));
+        avoidpolygons!.add(AmapPoint.fromJson(v));
       });
     }
     avoidroad = json['avoidroad'];
