@@ -104,10 +104,14 @@ class AMapController {
     return _methodChannel.requestPOIOptions(poiOptions.toJson(), mapId: mapId);
   }
 
-  Future<dynamic> requestDrivingCalRouteOptions(
-      AMapDrivingRouteSearchRequest searchRequest) {
-    return _methodChannel.requestDrivingCalRouteOptions(searchRequest.toJson(),
-        mapId: mapId);
+  Future<AMapDrivingRouteSearchResponse> requestDrivingCalRouteOptions(
+      AMapDrivingRouteSearchRequest searchRequest) async {
+    var result = await _methodChannel.requestDrivingCalRouteOptions(
+      searchRequest.toJson(),
+      mapId: mapId,
+    );
+
+    return AMapDrivingRouteSearchResponse.fromJson(json.decode(result));
   }
 
   ///改变地图视角

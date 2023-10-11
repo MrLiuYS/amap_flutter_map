@@ -70,6 +70,9 @@ class _MapUiBodyState extends State<_MapUiBody> {
   ///自定义定位小蓝点
   MyLocationStyleOptions _myLocationStyleOptions =
       MyLocationStyleOptions(false);
+
+  Map<String, Polyline> _polylines = <String, Polyline>{};
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +115,7 @@ class _MapUiBodyState extends State<_MapUiBody> {
       onTap: _onMapTap,
       onLongPress: _onMapLongPress,
       onPoiTouched: _onMapPoiTouched,
+      polylines: Set<Polyline>.of(_polylines.values),
     );
 
     Widget _mapTypeRadio(String label, MapType radioValue) {
@@ -397,9 +401,44 @@ class _MapUiBodyState extends State<_MapUiBody> {
         strategy: 5,
       ),
     )
-        .then((value) {
-      log(value);
+        .then((AMapDrivingRouteSearchResponse response) {
+      log(response.toString());
+
+      if (response.count != null && response.count! > 0) {
+        _polylines.clear();
+
+        for (AMapDrivingPath path in response.route?.paths ?? []) {
+          final Polyline polyline = Polyline(
+            color: Colors.black,
+            width: 5,
+            // customTexture:
+            //     BitmapDescriptor.fromIconPath('assets/texture_green.png'),
+            joinType: JoinType.round,
+            points: _createPoints(path.polyline ?? ""),
+          );
+
+          _polylines[polyline.id] = polyline;
+        }
+
+        setState(() {});
+      }
     });
+  }
+
+  List<LatLng> _createPoints(String polyline) {
+    final List<LatLng> points = <LatLng>[];
+
+    List<String> stepPolylines = polyline.split(";");
+
+    for (var stepPolyline in stepPolylines) {
+      List<String> pStep = stepPolyline.split(",");
+
+      if (pStep.length == 2) {
+        points.add(LatLng(double.parse(pStep.last), double.parse(pStep.first)));
+      }
+    }
+
+    return points;
   }
 
   void onMapCreated(AMapController controller) {

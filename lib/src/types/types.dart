@@ -11,3 +11,5 @@ export 'camera.dart';
 export 'bitmap.dart';
 export 'amap_poi_keywords_search_request.dart';
 export 'amap_driving_route_search_request.dart';
+export 'amap_driving_route_search_response.dart';
+export 'amap_driving_geo_point.dart';

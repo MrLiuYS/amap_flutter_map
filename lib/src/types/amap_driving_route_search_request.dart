@@ -1,4 +1,5 @@
 import 'amap_flutter_base_util.dart';
+import 'types.dart';
 
 class AMapDrivingRouteSearchRequest {
   ///出发点
@@ -132,24 +133,5 @@ class AMapDrivingRouteSearchRequest {
     data['plateNumber'] = this.plateNumber;
     data['ferry'] = this.ferry;
     return AmapFlutterBaseUtil.removeNullsFromMap(data).cast();
-  }
-}
-
-class AmapDrivingGeoPoint {
-  double? latitude;
-  double? longitude;
-
-  AmapDrivingGeoPoint({this.latitude, this.longitude});
-
-  AmapDrivingGeoPoint.fromJson(Map<String, dynamic> json) {
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    return data;
   }
 }

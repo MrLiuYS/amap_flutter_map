@@ -2,6 +2,7 @@
 library amap_flutter_map;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:amap_flutter_base/amap_flutter_base.dart';
