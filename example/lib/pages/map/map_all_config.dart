@@ -70,8 +70,7 @@ class _MapUiBodyState extends State<_MapUiBody> {
   CustomStyleOptions _customStyleOptions = CustomStyleOptions(false);
 
   ///自定义定位小蓝点
-  MyLocationStyleOptions _myLocationStyleOptions =
-      MyLocationStyleOptions(false);
+  MyLocationStyleOptions _myLocationStyleOptions = MyLocationStyleOptions(true);
 
   Map<String, Polyline> _polylines = <String, Polyline>{};
 
@@ -395,14 +394,14 @@ class _MapUiBodyState extends State<_MapUiBody> {
     _controller
         .requestDrivingCalRouteOptions(AMapDrivingCalRouteSearchRequest(
       origin: AmapPoint(
-        latitude: "39.909187",
-        longitude: "116.397451",
+        latitude: 22.54086208767361, // "22.54388845196239",
+        longitude: 113.95154595269099, //"113.94667166467889",
       ),
       destination: AmapPoint(
-        latitude: "39",
-        longitude: "116",
+        latitude: 22.5523567,
+        longitude: 113.8876831,
       ),
-      strategy: 5,
+      // strategy: 5,
     ))
         .then((AMapDrivingCalRouteSearchResponse response) {
       developer.log(jsonEncode(response.toJson()));
