@@ -1,3 +1,5 @@
+import 'types.dart';
+
 class AmapPoint {
   num? latitude;
   num? longitude;
@@ -5,8 +7,8 @@ class AmapPoint {
   AmapPoint({this.latitude, this.longitude});
 
   AmapPoint.fromJson(Map<String, dynamic> json) {
-    latitude = num.parse(json['latitude'].toString());
-    longitude = num.parse(json['longitude'].toString());
+    latitude = AmapFlutterBaseUtil.tsType<num>(json['latitude']);
+    longitude = AmapFlutterBaseUtil.tsType<num>(json['longitude']);
   }
 
   Map<String, dynamic> toJson() {

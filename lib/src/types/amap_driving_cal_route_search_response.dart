@@ -7,7 +7,7 @@ class AMapDrivingCalRouteSearchResponse {
   AMapDrivingCalRouteSearchResponse({this.count, this.route});
 
   AMapDrivingCalRouteSearchResponse.fromJson(Map<String, dynamic> json) {
-    count = json['count'];
+    count = AmapFlutterBaseUtil.tsType<num>(json['count']);
     route = json['route'] != null
         ? new AMapDrivingRoute.fromJson(json['route'])
         : null;
@@ -41,7 +41,7 @@ class AMapDrivingRoute {
     destination = json['destination'] != null
         ? new AmapPoint.fromJson(json['destination'])
         : null;
-    taxiCost = json['taxiCost'];
+    taxiCost = AmapFlutterBaseUtil.tsType<num>(json['taxiCost']);
     origin =
         json['origin'] != null ? new AmapPoint.fromJson(json['origin']) : null;
   }
@@ -85,20 +85,21 @@ class AMapDrivingPath {
       this.tolls});
 
   AMapDrivingPath.fromJson(Map<String, dynamic> json) {
-    restriction = json['restriction'];
+    restriction = AmapFlutterBaseUtil.tsType<num>(json['restriction']);
     polyline = json['polyline'];
-    distance = json['distance'];
+    distance = AmapFlutterBaseUtil.tsType<num>(json['distance']);
     if (json['steps'] != null) {
       steps = <AMapDrivingStep>[];
       json['steps'].forEach((v) {
         steps!.add(new AMapDrivingStep.fromJson(v));
       });
     }
-    totalTrafficLights = json['totalTrafficLights'];
-    duration = json['duration'];
+    totalTrafficLights =
+        AmapFlutterBaseUtil.tsType<num>(json['totalTrafficLights']);
+    duration = AmapFlutterBaseUtil.tsType<num>(json['duration']);
     strategy = json['strategy'];
-    tollDistance = json['tollDistance'];
-    tolls = json['tolls'];
+    tollDistance = AmapFlutterBaseUtil.tsType<num>(json['tollDistance']);
+    tolls = AmapFlutterBaseUtil.tsType<num>(json['tolls']);
   }
 
   Map<String, dynamic> toJson() {
@@ -159,11 +160,12 @@ class AMapDrivingStep {
         cities!.add(new AMapDrivingCity.fromJson(v));
       });
     }
-    tollDistance = json['tollDistance'];
+    tollDistance = AmapFlutterBaseUtil.tsType<num>(json['tollDistance']);
     tollRoad = json['tollRoad'];
     road = json['road'];
     action = json['action'];
-    totalTrafficLights = json['totalTrafficLights'];
+    totalTrafficLights =
+        AmapFlutterBaseUtil.tsType<num>(json['totalTrafficLights']);
     instruction = json['instruction'];
     polyline = json['polyline'];
     if (json['tmcs'] != null) {
@@ -172,9 +174,9 @@ class AMapDrivingStep {
         tmcs!.add(new AMapDrivingTmc.fromJson(v));
       });
     }
-    duration = json['duration'];
-    distance = json['distance'];
-    tolls = json['tolls'];
+    duration = AmapFlutterBaseUtil.tsType<num>(json['duration']);
+    distance = AmapFlutterBaseUtil.tsType<num>(json['distance']);
+    tolls = AmapFlutterBaseUtil.tsType<num>(json['tolls']);
   }
 
   Map<String, dynamic> toJson() {
@@ -213,7 +215,7 @@ class AMapDrivingCity {
 
   AMapDrivingCity.fromJson(Map<String, dynamic> json) {
     citycode = json['citycode'];
-    aNum = json['num'];
+    aNum = AmapFlutterBaseUtil.tsType<num>(json['num']);
     if (json['districts'] != null) {
       districts = <AMapDrivingDistrict>[];
       json['districts'].forEach((v) {
@@ -271,7 +273,7 @@ class AMapDrivingTmc {
 
   AMapDrivingTmc.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    distance = json['distance'];
+    distance = AmapFlutterBaseUtil.tsType<num>(json['distance']);
     polyline = json['polyline'];
   }
 

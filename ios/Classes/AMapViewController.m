@@ -246,22 +246,48 @@
         [weakSelf.mapView clearDisk];
         result(nil);
     }];
-    [self.channel addMethodName:@"map#requestPOI" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
-        [weakSelf requestPOIOptions:call.arguments[@"options"]];
+    [self.channel addMethodName:@"map#requestReGeocodeSearch" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
+        [weakSelf requestReGeocodeSearchOptions:call.arguments[@"options"]];
         weakSelf.waitForMapCallBack = result;
     }];
-    [self.channel addMethodName:@"map#requestDrivingCalRoute" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
-        [weakSelf requestDrivingRouteOptions:call.arguments[@"options"]];
+    [self.channel addMethodName:@"map#requestPOIKeywordsSearch" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
+        [weakSelf requestPOIKeywordsSearchOptions:call.arguments[@"options"]];
+        weakSelf.waitForMapCallBack = result;
+    }];
+    [self.channel addMethodName:@"map#requestDrivingCalRouteSearch" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
+        [weakSelf requestDrivingCalRouteSearchOptions:call.arguments[@"options"]];
         weakSelf.waitForMapCallBack = result;
     }];
 }
 
+//MARK: 逆地理编码请求
+- (void)requestReGeocodeSearchOptions:(NSDictionary *)dict{
+    
+    AMapReGeocodeSearchRequest *request = [[AMapReGeocodeSearchRequest alloc] init];
+    
+    if (dict[@"requireExtension"]){
+        request.requireExtension = dict[@"requireExtension"];
+    }
+    if (dict[@"location"]){
+        request.location = [AMapGeoPoint locationWithLatitude:[dict[@"location"][@"latitude"] doubleValue]
+                                                  longitude:[dict[@"location"][@"longitude"] doubleValue]];
+    }
+    if (dict[@"radius"]){
+        request.radius = [dict[@"radius"] intValue];
+    }
+    if (dict[@"poitype"]){
+        request.poitype = dict[@"poitype"];
+    }
+    if (dict[@"mode"]){
+        request.mode = dict[@"mode"];
+    }
+    [self.search AMapReGoecodeSearch:request];
+}
 
-//MARK: 获取POI数据
-- (void)requestPOIOptions:(NSDictionary *)dict{
+//MARK: POI关键字搜索
+- (void)requestPOIKeywordsSearchOptions:(NSDictionary *)dict{
     
     AMapPOIKeywordsSearchRequest *request = [[AMapPOIKeywordsSearchRequest alloc] init];
-        
     if (dict[@"keywords"]){
         request.keywords = dict[@"keywords"];
     }
@@ -287,12 +313,11 @@
     if (dict[@"page"]){
         request.page = [dict[@"page"] intValue];
     }
-    
     [self.search AMapPOIKeywordsSearch:request];
-    
 }
 
-- (void)requestDrivingRouteOptions:(NSDictionary *)dict{
+//MARK: 驾车路径规划2.0
+- (void)requestDrivingCalRouteSearchOptions:(NSDictionary *)dict{
     
     AMapDrivingCalRouteSearchRequest *request = [[AMapDrivingCalRouteSearchRequest alloc] init];
     
@@ -661,6 +686,16 @@
 
 
 //MARK: AMapSearchDelegate
+
+//MARK: 逆地理编码回调
+
+- (void)onReGeocodeSearchDone:(AMapReGeocodeSearchRequest *)request response:(AMapReGeocodeSearchResponse *)response
+{
+    if (self.waitForMapCallBack) {
+        self.waitForMapCallBack(response.mj_JSONString);
+        self.waitForMapCallBack = nil;
+    }
+}
 
 //MARK: POI数据
 

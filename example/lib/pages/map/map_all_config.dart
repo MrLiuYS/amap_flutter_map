@@ -349,12 +349,16 @@ class _MapUiBodyState extends State<_MapUiBody> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextButton(
-            onPressed: onHandleRequestPOI,
-            child: Text("request poi"),
+            onPressed: onRequestReGeocodeSearchOptions,
+            child: Text("逆地址"),
           ),
           TextButton(
-            onPressed: onHandleDrivingRoute,
-            child: Text("driving route"),
+            onPressed: onRequestPOIKeywordsSearchOptions,
+            child: Text("关键词查询"),
+          ),
+          TextButton(
+            onPressed: onRequestDrivingCalRouteSearchOptions,
+            child: Text("驾车路线"),
           ),
           Container(
             height: MediaQuery.of(context).size.height * 0.6,
@@ -373,9 +377,28 @@ class _MapUiBodyState extends State<_MapUiBody> {
     );
   }
 
-  void onHandleRequestPOI() {
+  void onRequestReGeocodeSearchOptions() {
     _controller
-        .requestPOIOptions(
+        .requestReGeocodeSearchOptions(
+      AMapReGeocodeSearchRequest(
+        location: AmapPoint(
+          latitude: 22.54086208767361, // "22.54388845196239",
+          longitude: 113.95154595269099, //"113.94667166467889",
+        ),
+        requireExtension: true,
+        // city: "北京",
+        // requireExtension: true,
+        // requireSubPOIs: true,
+      ),
+    )
+        .then((value) {
+      developer.log(value.toJson().toString());
+    });
+  }
+
+  void onRequestPOIKeywordsSearchOptions() {
+    _controller
+        .requestPOIKeywordsSearchOptions(
       AMapPOIKeywordsSearchRequest(
         keywords: "北京大学",
         city: "北京",
@@ -388,11 +411,9 @@ class _MapUiBodyState extends State<_MapUiBody> {
     });
   }
 
-  void onHandleDrivingRoute() {
-// 39.909187, 116.397451
-
+  void onRequestDrivingCalRouteSearchOptions() {
     _controller
-        .requestDrivingCalRouteOptions(AMapDrivingCalRouteSearchRequest(
+        .requestDrivingCalRouteSearchOptions(AMapDrivingCalRouteSearchRequest(
       origin: AmapPoint(
         latitude: 22.54086208767361, // "22.54388845196239",
         longitude: 113.95154595269099, //"113.94667166467889",

@@ -100,18 +100,27 @@ class AMapController {
     return _methodChannel.updatePolygons(polygonUpdates, mapId: mapId);
   }
 
-  Future<AMapPOIKeywordsSearchResponse> requestPOIOptions(
+  Future<AMapReGeocodeSearchResponse> requestReGeocodeSearchOptions(
+      AMapReGeocodeSearchRequest poiOptions) async {
+    var result = await _methodChannel.requestReGeocodeSearchOptions(
+      poiOptions.toJson(),
+      mapId: mapId,
+    );
+    return AMapReGeocodeSearchResponse.fromJson(json.decode(result));
+  }
+
+  Future<AMapPOIKeywordsSearchResponse> requestPOIKeywordsSearchOptions(
       AMapPOIKeywordsSearchRequest poiOptions) async {
-    var result = await _methodChannel.requestPOIOptions(
+    var result = await _methodChannel.requestPOIKeywordsSearchOptions(
       poiOptions.toJson(),
       mapId: mapId,
     );
     return AMapPOIKeywordsSearchResponse.fromJson(json.decode(result));
   }
 
-  Future<AMapDrivingCalRouteSearchResponse> requestDrivingCalRouteOptions(
+  Future<AMapDrivingCalRouteSearchResponse> requestDrivingCalRouteSearchOptions(
       AMapDrivingCalRouteSearchRequest searchRequest) async {
-    var result = await _methodChannel.requestDrivingCalRouteOptions(
+    var result = await _methodChannel.requestDrivingCalRouteSearchOptions(
       searchRequest.toJson(),
       mapId: mapId,
     );

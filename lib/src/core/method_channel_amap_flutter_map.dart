@@ -79,14 +79,26 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
     );
   }
 
-  ///请求POI数据
-  ///TODO: 请求POI数据
-  Future<dynamic> requestPOIOptions(
+  ///逆地理编码请求
+  Future<dynamic> requestReGeocodeSearchOptions(
     Map<String, dynamic> newOptions, {
     required int mapId,
   }) {
     return channel(mapId).invokeMethod<void>(
-      'map#requestPOI',
+      'map#requestReGeocodeSearch',
+      <String, dynamic>{
+        'options': newOptions,
+      },
+    );
+  }
+
+  ///POI关键字搜索
+  Future<dynamic> requestPOIKeywordsSearchOptions(
+    Map<String, dynamic> newOptions, {
+    required int mapId,
+  }) {
+    return channel(mapId).invokeMethod<void>(
+      'map#requestPOIKeywordsSearch',
       <String, dynamic>{
         'options': newOptions,
       },
@@ -94,13 +106,12 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
   }
 
   ///驾车出行路线规划
-  ///TODO: 驾车出行路线规划
-  Future<dynamic> requestDrivingCalRouteOptions(
+  Future<dynamic> requestDrivingCalRouteSearchOptions(
     Map<String, dynamic> newOptions, {
     required int mapId,
   }) {
     return channel(mapId).invokeMethod<void>(
-      'map#requestDrivingCalRoute',
+      'map#requestDrivingCalRouteSearch',
       <String, dynamic>{
         'options': newOptions,
       },

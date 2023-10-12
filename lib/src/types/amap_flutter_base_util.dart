@@ -19,6 +19,25 @@ class AmapFlutterBaseUtil {
       ? removeNullsFromList(e)
       : (e is Map ? removeNullsFromMap(e) : e);
 
+  static T? tsType<T>(dynamic value) {
+    if (value != null) {
+      final String valueS = value.toString();
+      if ('' is T) {
+        return valueS as T;
+      } else if (0 is T) {
+        return num.parse(valueS) as T;
+      } else if (0.0 is T) {
+        return num.parse(valueS) as T;
+      } else if (false is T) {
+        if (valueS == '0' || valueS == '1') {
+          return (valueS == '1') as T;
+        }
+        return (valueS.toLowerCase() == 'true') as T;
+      }
+    }
+    return null;
+  }
+
   static LatLngBounds? adjustBoundFromPaths(List<AMapDrivingPath>? paths) {
     if (paths == null) return null;
 
