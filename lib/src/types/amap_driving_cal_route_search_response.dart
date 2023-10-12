@@ -1,12 +1,12 @@
 import 'types.dart';
 
-class AMapDrivingRouteSearchResponse {
+class AMapDrivingCalRouteSearchResponse {
   num? count;
   AMapDrivingRoute? route;
 
-  AMapDrivingRouteSearchResponse({this.count, this.route});
+  AMapDrivingCalRouteSearchResponse({this.count, this.route});
 
-  AMapDrivingRouteSearchResponse.fromJson(Map<String, dynamic> json) {
+  AMapDrivingCalRouteSearchResponse.fromJson(Map<String, dynamic> json) {
     count = json['count'];
     route = json['route'] != null
         ? new AMapDrivingRoute.fromJson(json['route'])

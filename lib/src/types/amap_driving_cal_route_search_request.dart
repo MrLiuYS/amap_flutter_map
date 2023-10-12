@@ -1,33 +1,33 @@
 import 'types.dart';
 
-class AMapDrivingRouteSearchRequest {
+class AMapDrivingCalRouteSearchRequest {
   ///出发点
   AmapPoint? origin;
 
   ///目的地
   AmapPoint? destination;
 
-  ///  驾车导航策略，默认策略为0。
-  /// 0，速度优先（时间)；1，费用优先（不走收费路段的最快道路）；2，距离优先；3，不走快速路；4，躲避拥堵；
-  /// 5，多策略（同时使用速度优先、费用优先、距离优先三个策略计算路径），其中必须说明，就算使用三个策略算路，会根据路况不固定的返回一至三条路径规划信息；
-  /// 6，不走高速；7，不走高速且避免收费；8，躲避收费和拥堵；9，不走高速且躲避收费和拥堵；
-  /// 10，多备选，时间最短，距离最短，躲避拥堵（考虑路况）；
-  /// 11，多备选，时间最短，距离最短；
-  /// 12，多备选，躲避拥堵（考虑路况）；
-  /// 13，多备选，不走高速；
-  /// 14，多备选，费用优先；
-  /// 15，多备选，躲避拥堵，不走高速（考虑路况）；
-  /// 16，多备选，费用有限，不走高速；
-  /// 17，多备选，躲避拥堵，费用优先（考虑路况）；
-  /// 18，多备选，躲避拥堵，不走高速，费用优先（考虑路况）；
-  /// 19，多备选，高速优先；
-  /// 20，多备选，高速优先，躲避拥堵（考虑路况）
+  /// 驾车导航策略，默认策略为32。
+  // 32：默认，高德推荐，同高德地图APP默认
+  // 33：躲避拥堵
+  // 34：高速优先
+  // 35：不走高速
+  // 36：少收费
+  // 37：大路优先
+  // 38：速度最快
+  // 39：躲避拥堵＋高速优先
+  // 40：躲避拥堵＋不走高速
+  // 41：躲避拥堵＋少收费
+  // 42：少收费＋不走高速
+  // 43：躲避拥堵＋少收费＋不走高速
+  // 44：躲避拥堵＋大路优先
+  // 45：躲避拥堵＋速度最快
   int? strategy;
 
   ///途经点 AMapGeoPoint 数组，最多支持16个途经点
   List<AmapPoint>? waypoints;
 
-  ///避让区域 AMapGeoPolygon 数组，最多支持100个避让区域，每个区域16个点
+  ///避让区域 AMapGeoPolygon 数组，目前最多支持32个避让区域，每个区域16个点
   List<AmapPoint>? avoidpolygons;
 
   ///避让道路名
@@ -39,7 +39,7 @@ class AMapDrivingRouteSearchRequest {
   ///目的地 POI ID
   String? destinationId;
 
-  ///出发点POI类型编码
+  ///出发点POI类型编码，此值可以辅助更精准的起点算路，0：普通道路、1：高架上、2：高架下、3：主路、4：辅路、5：隧道、7：环岛、9：停车场内部
   String? origintype;
 
   ///目的地POI类型编码
@@ -48,16 +48,13 @@ class AMapDrivingRouteSearchRequest {
   ///是否返回扩展信息，默认为 NO
   bool? requireExtension;
 
-  ///车牌省份，用汉字填入车牌省份缩写。用于判断是否限行
-  String? plateProvince;
-
-  ///车牌详情,填入除省份及标点之外的字母和数字（需大写）。用于判断是否限行。
-  String? plateNumber;
+  ///车牌信息，如京AHA322，支持6位传统车牌和7位新能源车牌，用于判断是否限行
+  String? plate;
 
   ///使用轮渡,0使用1不使用,默认为0使用
   int? ferry;
 
-  AMapDrivingRouteSearchRequest(
+  AMapDrivingCalRouteSearchRequest(
       {required this.origin,
       required this.destination,
       this.strategy,
@@ -69,11 +66,10 @@ class AMapDrivingRouteSearchRequest {
       this.requireExtension,
       this.origintype,
       this.destinationtype,
-      this.plateProvince,
-      this.plateNumber,
+      this.plate,
       this.ferry});
 
-  AMapDrivingRouteSearchRequest.fromJson(Map<String, dynamic> json) {
+  AMapDrivingCalRouteSearchRequest.fromJson(Map<String, dynamic> json) {
     origin = json['origin'] != null ? AmapPoint.fromJson(json['origin']) : null;
     destination = json['destination'] != null
         ? AmapPoint.fromJson(json['destination'])
@@ -98,8 +94,7 @@ class AMapDrivingRouteSearchRequest {
     origintype = json['origintype'];
     destinationtype = json['destinationtype'];
     requireExtension = json['requireExtension'];
-    plateProvince = json['plateProvince'];
-    plateNumber = json['plateNumber'];
+    plate = json['plate'];
     ferry = json['ferry'];
   }
 
@@ -126,8 +121,7 @@ class AMapDrivingRouteSearchRequest {
     data['origintype'] = this.origintype;
     data['destinationtype'] = this.destinationtype;
     data['requireExtension'] = this.requireExtension;
-    data['plateProvince'] = this.plateProvince;
-    data['plateNumber'] = this.plateNumber;
+    data['plate'] = this.plate;
     data['ferry'] = this.ferry;
     return AmapFlutterBaseUtil.removeNullsFromMap(data).cast();
   }

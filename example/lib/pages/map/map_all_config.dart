@@ -385,7 +385,7 @@ class _MapUiBodyState extends State<_MapUiBody> {
       ),
     )
         .then((value) {
-      developer.log(value.toString());
+      developer.log(value.toJson().toString());
     });
   }
 
@@ -393,7 +393,7 @@ class _MapUiBodyState extends State<_MapUiBody> {
 // 39.909187, 116.397451
 
     _controller
-        .requestDrivingCalRouteOptions(AMapDrivingRouteSearchRequest(
+        .requestDrivingCalRouteOptions(AMapDrivingCalRouteSearchRequest(
       origin: AmapPoint(
         latitude: 39.909187,
         longitude: 116.397451,
@@ -404,7 +404,7 @@ class _MapUiBodyState extends State<_MapUiBody> {
       ),
       strategy: 5,
     ))
-        .then((AMapDrivingRouteSearchResponse response) {
+        .then((AMapDrivingCalRouteSearchResponse response) {
       developer.log(jsonEncode(response.toJson()));
 
       if (response.count != null && response.count! > 0) {
@@ -412,25 +412,29 @@ class _MapUiBodyState extends State<_MapUiBody> {
         _polylines.clear();
 
         for (AMapDrivingPath path in response.route?.paths ?? []) {
-          final Polyline polyline = Polyline(
-            color: Colors.black,
-            width: 5, //20,
-            // customTexture:
-            //     BitmapDescriptor.fromIconPath('assets/texture_green.png'),
-            joinType: JoinType.round,
-            points: _createPoints(path.polyline ?? ""),
-          );
+          List<LatLng> points = _createPoints(path.polyline ?? "");
 
-          _polylines[polyline.id] = polyline;
+          if (points.isNotEmpty) {
+            final Polyline polyline = Polyline(
+              color: Colors.black,
+              width: 5, //20,
+              // customTexture:
+              //     BitmapDescriptor.fromIconPath('assets/texture_green.png'),
+              joinType: JoinType.round,
+              points: points,
+            );
+
+            _polylines[polyline.id] = polyline;
+          }
         }
-
         setState(() {});
-
-        var bound =
-            AmapFlutterBaseUtil.adjustBoundFromPaths(response.route?.paths);
-        if (bound != null) {
-          CameraUpdate update = CameraUpdate.newLatLngBounds(bound, 50);
-          _controller.moveCamera(update);
+        if (_polylines.isNotEmpty) {
+          var bound =
+              AmapFlutterBaseUtil.adjustBoundFromPaths(response.route?.paths);
+          if (bound != null) {
+            CameraUpdate update = CameraUpdate.newLatLngBounds(bound, 50);
+            _controller.moveCamera(update);
+          }
         }
       }
     });

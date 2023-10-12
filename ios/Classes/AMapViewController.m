@@ -287,15 +287,6 @@
     if (dict[@"page"]){
         request.page = [dict[@"page"] intValue];
     }
-    if (dict[@"building"]){
-        request.building = dict[@"building"];
-    }
-    if (dict[@"requireExtension"]){
-        request.requireExtension = dict[@"requireExtension"];
-    }
-    if (dict[@"requireSubPOIs"]){
-        request.requireSubPOIs = dict[@"requireSubPOIs"];
-    }
     
     [self.search AMapPOIKeywordsSearch:request];
     
@@ -303,7 +294,7 @@
 
 - (void)requestDrivingRouteOptions:(NSDictionary *)dict{
     
-    AMapDrivingRouteSearchRequest *request = [[AMapDrivingRouteSearchRequest alloc] init];
+    AMapDrivingCalRouteSearchRequest *request = [[AMapDrivingCalRouteSearchRequest alloc] init];
     
     if (dict[@"origin"]){
         request.origin = [AMapGeoPoint locationWithLatitude:[dict[@"origin"][@"latitude"] doubleValue]
@@ -314,7 +305,6 @@
                                                   longitude:[dict[@"destination"][@"longitude"] doubleValue]];
     }
     
-    request.requireExtension = YES;
     if (dict[@"strategy"]){
         request.strategy = [dict[@"strategy"] intValue];
     }
@@ -332,7 +322,7 @@
             [avoidpolygons addObject:[AMapGeoPoint locationWithLatitude:[avoidpolygon[@"latitude"] doubleValue]
                                                               longitude:[avoidpolygon[@"longitude"] doubleValue]]];
         }
-        request.avoidpolygons = avoidpolygons;
+        request.avoidpolygons = [AMapGeoPolygon polygonWithPoints:avoidpolygons];
     }
     if (dict[@"avoidroad"]){
         request.avoidroad = dict[@"avoidroad"];
@@ -349,17 +339,16 @@
     if (dict[@"destinationtype"]){
         request.destinationtype = dict[@"destinationtype"];
     }
-    if (dict[@"plateProvince"]){
-        request.plateProvince = dict[@"plateProvince"];
-    }
-    if (dict[@"plateNumber"]){
-        request.plateNumber = dict[@"plateNumber"];
+    if (dict[@"plate"]){
+        request.plate = dict[@"plate"];
     }
     if (dict[@"ferry"]){
         request.ferry = [dict[@"ferry"] intValue];
     }
     
-    [self.search AMapDrivingRouteSearch:request];
+    request.showFieldType = AMapDrivingRouteShowFieldTypeCost|AMapDrivingRouteShowFieldTypeTmcs|AMapDrivingRouteShowFieldTypeNavi|AMapDrivingRouteShowFieldTypeCities|AMapDrivingRouteShowFieldTypePolyline;;
+
+    [self.search AMapDrivingV2RouteSearch:request];
 }
 
 //MARK: MAMapViewDelegate
