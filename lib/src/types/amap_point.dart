@@ -1,12 +1,12 @@
 class AmapPoint {
-  num? latitude;
-  num? longitude;
+  String? latitude;
+  String? longitude;
 
   AmapPoint({this.latitude, this.longitude});
 
   AmapPoint.fromJson(Map<String, dynamic> json) {
-    latitude = num.parse(json['latitude'].toString());
-    longitude = num.parse(json['longitude'].toString());
+    latitude = json['latitude'].toString();
+    longitude = json['longitude'].toString();
   }
 
   Map<String, dynamic> toJson() {

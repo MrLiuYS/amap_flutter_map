@@ -395,12 +395,12 @@ class _MapUiBodyState extends State<_MapUiBody> {
     _controller
         .requestDrivingCalRouteOptions(AMapDrivingCalRouteSearchRequest(
       origin: AmapPoint(
-        latitude: 39.909187,
-        longitude: 116.397451,
+        latitude: "39.909187",
+        longitude: "116.397451",
       ),
       destination: AmapPoint(
-        latitude: 39,
-        longitude: 116,
+        latitude: "39",
+        longitude: "116",
       ),
       strategy: 5,
     ))
